@@ -1,0 +1,42 @@
+type Comment{
+    id:ID!
+    userId: ID!
+    videoId: ID!
+    comment: String!
+    commentDate: String!
+}
+
+extend type Query{
+    comments:[Comment!]!
+    replies:[Reply!]!
+}
+
+input newComment{
+    userId: ID!
+    videoId: ID!
+    comment: String!
+}
+
+extend type Mutation{
+    createComment(input:newComment): Comment!
+    updateComment(id: ID!, input:newComment):Comment!
+    deleteComment(id: ID!):Boolean!
+    createReply(input:newReply): Reply!
+    updateReply(id: ID!, input:newReply):Reply!
+    deleteReply(id: ID!):Boolean!
+}
+
+type Reply{
+    id: ID!
+    commentId: ID!
+    userId: ID!
+    reply: String!
+    replyDate: String!
+}
+
+
+input newReply{
+    commentId: ID!
+    userId: ID!
+    reply: String!
+}

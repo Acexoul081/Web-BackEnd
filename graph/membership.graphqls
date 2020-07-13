@@ -1,0 +1,36 @@
+type MembershipDetail{
+    membershipId: ID!
+    userId:ID!
+    date: String!
+    bill: Int!
+}
+
+extend type Query{
+    membershipDetails:[MembershipDetail!]!
+    memberships:[Membership!]!
+}
+
+input newMembershipDetail{
+    membershipId: ID!
+    userId:ID!
+    bill: Int!
+}
+
+extend type Mutation{
+    createMembershipDetail(input:newMembershipDetail): MembershipDetail!
+    updateMembershipDetail(userId: ID!, input:newMembershipDetail):MembershipDetail!
+    deleteMembershipDetail(userId: ID!):Boolean!
+    createMembership(input:newMembership): Membership!
+    updateMembership(id: ID!, input:newMembership):Membership!
+    deleteMembership(id: ID!):Boolean!
+}
+
+type Membership{
+    id:ID!
+    type: String!
+}
+
+
+input newMembership{
+    type: String!
+}

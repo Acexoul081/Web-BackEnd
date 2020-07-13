@@ -1,0 +1,37 @@
+type Video{
+    id: ID!
+    userID: ID!
+    link: String!
+    title: String!
+    view: Int!
+    like: Int!
+    dislike: Int!
+    dateUpload: String!
+    datePublish: String!
+    description: String!
+    thumbnail: String!
+    category: Int!
+    label: String!
+    privacy: Boolean!
+}
+
+input newVideo{
+    userID: ID!
+    link: String!
+    title: String!
+    description: String!
+    thumbnail: String!
+    category: Int!
+    label: String!
+    privacy: Boolean!
+}
+
+extend type Mutation{
+    createVideo(input:newVideo): Video!
+    updateVideo(id: ID!, input:newVideo): Video!
+    deleteVideo(id: ID!):Boolean!
+}
+
+extend type Query{
+    videos:[Video!]!
+}

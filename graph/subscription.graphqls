@@ -1,0 +1,20 @@
+
+type Abonemen{
+    userID: ID!
+    subscriberID: ID!
+}
+
+extend type Query{
+    subscriptions:[Abonemen!]!
+}
+
+input newSubscription{
+    userID: ID!
+    subscriberID: ID!
+}
+
+extend type Mutation{
+    createSubscription(input:newSubscription): Abonemen!
+    updateSubscription(id: ID!, input:newSubscription):Abonemen!
+    deleteSubscription(id: ID!):Boolean!
+}

@@ -1,0 +1,36 @@
+type Playlist{
+    id: ID!
+    ownerID: ID!
+    title: String!
+
+}
+
+extend type Query{
+    playlists:[Playlist!]!
+    playlistDetails:[PlaylistDetail!]!
+}
+
+input newPlaylist{
+    ownerID: ID!
+    title: String!
+}
+
+extend type Mutation{
+    createPlaylist(input:newPlaylist): Playlist!
+    updatePlaylist(id: ID!, input:newPlaylist):Playlist!
+    deletePlaylist(id: ID!): Boolean!
+    createPlaylistDetail(input:newPlaylistDetail): PlaylistDetail!
+    updatePlaylistDetail(id: ID!, input:newPlaylistDetail):PlaylistDetail!
+    deletePlaylistDetail(id: ID!):Boolean!
+}
+
+type PlaylistDetail{
+    playlistId: ID!
+    videoID: ID!
+
+}
+
+input newPlaylistDetail{
+    playlistId: ID!
+    videoID: ID!
+}

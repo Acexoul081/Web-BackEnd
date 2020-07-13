@@ -1,0 +1,18 @@
+type Kategori{
+    id: ID!
+    categoryName: String!
+}
+
+extend type Query{
+    categories:[Kategori!]!
+}
+
+input newCategory{
+    categoryName: String!
+}
+
+extend type Mutation{
+    createCategory(input:newCategory): Kategori!
+    updateCategory(id: ID!, input:newCategory):Kategori!
+    deleteCategory(id: ID!):Boolean!
+}
