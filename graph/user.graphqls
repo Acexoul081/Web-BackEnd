@@ -1,5 +1,6 @@
 type User{
     id: ID!
+    username: String!
     email: String!
     pass: String!
     profilePic: String!
@@ -8,6 +9,7 @@ type User{
 
 
 input newUser{
+    username: String!
     email: String!
     pass: String!
     profilePic: String!
@@ -15,6 +17,7 @@ input newUser{
 
 extend type Query{
     users:[User!]!
+    getUser(id:ID!):User!
 }
 
 extend type Mutation{

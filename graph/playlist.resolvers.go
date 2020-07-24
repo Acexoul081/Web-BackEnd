@@ -7,12 +7,14 @@ import (
 	"BackEnd/graph/model"
 	"context"
 	"errors"
+	"fmt"
 )
 
 func (r *mutationResolver) CreatePlaylist(ctx context.Context, input *model.NewPlaylist) (*model.Playlist, error) {
 	playlist := model.Playlist{
 		OwnerID: input.OwnerID,
 		Title:   input.Title,
+		Privacy: input.Privacy,
 	}
 	_, err := r.DB.Model(&playlist).Insert()
 
@@ -99,6 +101,14 @@ func (r *mutationResolver) DeletePlaylistDetail(ctx context.Context, id string) 
 	return true, nil
 }
 
+func (r *mutationResolver) CreatePlaylistSub(ctx context.Context, input *model.NewPlaylistSub) (*model.PlaylistSub, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *mutationResolver) DeletPlaylistSub(ctx context.Context, userID string, playlistID string) (bool, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
 func (r *queryResolver) Playlists(ctx context.Context) ([]*model.Playlist, error) {
 	var playlists []*model.Playlist
 
@@ -119,4 +129,15 @@ func (r *queryResolver) PlaylistDetails(ctx context.Context) ([]*model.PlaylistD
 		return nil, errors.New("failed to query playlist details")
 	}
 	return playlistDetails, nil
+}
+
+func (r *queryResolver) GetPlaylistByOwnerID(ctx context.Context, id string) ([]*model.Playlist, error) {
+	var playlists []*model.Playlist
+
+	err := r.DB.Model(&playlists).Where("owner_id = ?",id).Order("id").Select()
+
+	if err != nil {
+		return nil, errors.New("failed to query playlists by owner")
+	}
+	return playlists, nil
 }

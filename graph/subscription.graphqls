@@ -6,6 +6,7 @@ type Abonemen{
 
 extend type Query{
     subscriptions:[Abonemen!]!
+    getSubscriberCount(id: ID!): Int!
 }
 
 input newSubscription{

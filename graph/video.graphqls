@@ -29,9 +29,18 @@ input newVideo{
 extend type Mutation{
     createVideo(input:newVideo): Video!
     updateVideo(id: ID!, input:newVideo): Video!
+    updateVideoView(id: ID!): Video!
+    updateVideoLike(id:ID!):Video!
+    updateVideoDislike(id:ID!):Video!
     deleteVideo(id: ID!):Boolean!
 }
 
 extend type Query{
     videos:[Video!]!
+    getVideo(id: ID!): Video!
+    getVideosByCategory(category: Int!):[Video!]!
+    getVideosByUser(userId: ID!):[Video!]!
+    getVideosByUserLimit(userId:ID!, limit:Int!):[Video!]!
+    getLastUploadedVideo(userId:ID!):Video!
+    getVideoSearch(keyword: String!):[Video!]!
 }

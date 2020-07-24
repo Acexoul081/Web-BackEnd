@@ -13,6 +13,8 @@ type Comment struct {
 	VideoID     string `json:"videoId"`
 	Comment     string `json:"comment"`
 	CommentDate string `json:"commentDate"`
+	Like        int    `json:"like"`
+	Dislike     int    `json:"dislike"`
 }
 
 type Kategori struct {
@@ -36,11 +38,17 @@ type Playlist struct {
 	ID      string `json:"id"`
 	OwnerID string `json:"ownerID"`
 	Title   string `json:"title"`
+	Privacy bool   `json:"privacy"`
 }
 
 type PlaylistDetail struct {
 	PlaylistID string `json:"playlistId"`
 	VideoID    string `json:"videoID"`
+}
+
+type PlaylistSub struct {
+	PlaylistID string `json:"playlistID"`
+	UserID     string `json:"userID"`
 }
 
 type Reply struct {
@@ -49,10 +57,13 @@ type Reply struct {
 	UserID    string `json:"userId"`
 	Reply     string `json:"reply"`
 	ReplyDate string `json:"replyDate"`
+	Like      int    `json:"like"`
+	Dislike   int    `json:"dislike"`
 }
 
 type User struct {
 	ID           string `json:"id"`
+	Username     string `json:"username"`
 	Email        string `json:"email"`
 	Pass         string `json:"pass"`
 	ProfilePic   string `json:"profilePic"`
@@ -99,11 +110,17 @@ type NewMembershipDetail struct {
 type NewPlaylist struct {
 	OwnerID string `json:"ownerID"`
 	Title   string `json:"title"`
+	Privacy bool   `json:"privacy"`
 }
 
 type NewPlaylistDetail struct {
 	PlaylistID string `json:"playlistId"`
 	VideoID    string `json:"videoID"`
+}
+
+type NewPlaylistSub struct {
+	PlaylistID string `json:"playlistID"`
+	UserID     string `json:"userID"`
 }
 
 type NewReply struct {
@@ -118,6 +135,7 @@ type NewSubscription struct {
 }
 
 type NewUser struct {
+	Username   string `json:"username"`
 	Email      string `json:"email"`
 	Pass       string `json:"pass"`
 	ProfilePic string `json:"profilePic"`

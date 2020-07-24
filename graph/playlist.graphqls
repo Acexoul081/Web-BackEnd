@@ -2,17 +2,19 @@ type Playlist{
     id: ID!
     ownerID: ID!
     title: String!
-
+    privacy: Boolean!
 }
 
 extend type Query{
     playlists:[Playlist!]!
     playlistDetails:[PlaylistDetail!]!
+    getPlaylistByOwnerID(id:ID!):[Playlist!]!
 }
 
 input newPlaylist{
     ownerID: ID!
     title: String!
+    privacy: Boolean!
 }
 
 extend type Mutation{
@@ -22,15 +24,26 @@ extend type Mutation{
     createPlaylistDetail(input:newPlaylistDetail): PlaylistDetail!
     updatePlaylistDetail(id: ID!, input:newPlaylistDetail):PlaylistDetail!
     deletePlaylistDetail(id: ID!):Boolean!
+    createPlaylistSub(input: newPlaylistSub): PlaylistSub!
+    deletPlaylistSub(userID:ID!, playlistID:ID!): Boolean!
 }
 
 type PlaylistDetail{
     playlistId: ID!
     videoID: ID!
-
 }
 
 input newPlaylistDetail{
     playlistId: ID!
     videoID: ID!
+}
+
+type PlaylistSub{
+    playlistID: ID!
+    userID: ID!
+}
+
+input newPlaylistSub{
+    playlistID: ID!
+    userID: ID!
 }

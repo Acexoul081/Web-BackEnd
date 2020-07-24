@@ -4,11 +4,17 @@ type Comment{
     videoId: ID!
     comment: String!
     commentDate: String!
+    like: Int!
+    dislike: Int!
 }
 
 extend type Query{
     comments:[Comment!]!
     replies:[Reply!]!
+    getCommentCount(id: ID!): Int!
+    getCommentsById(id: ID!):[Comment!]!
+    getRepliesByComment(commentId: ID!):[Reply!]!
+    getReplyCount(commentId: ID!):Int!
 }
 
 input newComment{
@@ -20,9 +26,13 @@ input newComment{
 extend type Mutation{
     createComment(input:newComment): Comment!
     updateComment(id: ID!, input:newComment):Comment!
+    updateCommentLike(id:ID!):Comment!
+    updateCommentDislike(id:ID!):Comment!
     deleteComment(id: ID!):Boolean!
     createReply(input:newReply): Reply!
     updateReply(id: ID!, input:newReply):Reply!
+    updateReplyLike(id:ID!):Reply!
+    updateReplyDislike(id:ID!):Reply!
     deleteReply(id: ID!):Boolean!
 }
 
@@ -32,6 +42,8 @@ type Reply{
     userId: ID!
     reply: String!
     replyDate: String!
+    like: Int!
+    dislike: Int!
 }
 
 

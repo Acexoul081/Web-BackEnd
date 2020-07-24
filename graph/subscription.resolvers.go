@@ -60,3 +60,13 @@ func (r *queryResolver) Subscriptions(ctx context.Context) ([]*model.Abonemen, e
 	}
 	return subscriptions, nil
 }
+
+func (r *queryResolver) GetSubscriberCount(ctx context.Context, id string) (int, error) {
+	var count int
+	var subscription model.Abonemen
+	count, err := r.DB.Model(&subscription).Where("user_id=?", id).Count()
+	if err != nil {
+		return 0, errors.New("subscriber not found")
+	}
+	return count, nil
+}

@@ -11,9 +11,10 @@ import (
 
 func (r *mutationResolver) CreateUser(ctx context.Context, input *model.NewUser) (*model.User, error) {
 	user := model.User{
-		Email:      input.Email,
-		Pass:       input.Pass,
-		ProfilePic: input.ProfilePic,
+		Email:        input.Email,
+		Pass:         input.Pass,
+		ProfilePic:   input.ProfilePic,
+		Username:     input.Username,
 		MembershipID: "",
 	}
 	_, err := r.DB.Model(&user).Insert()
@@ -33,6 +34,7 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input *mod
 	user.Email = input.Email
 	user.Pass = input.Pass
 	user.ProfilePic = input.ProfilePic
+	user.Username = input.Username
 	_, updateErr := r.DB.Model(&user).Where("id=?", id).Update()
 	if updateErr != nil {
 		return nil, errors.New("update user fialed")
@@ -47,7 +49,7 @@ func (r *mutationResolver) DeleteUser(ctx context.Context, id string) (bool, err
 	if err != nil {
 		return false, errors.New("user not found")
 	}
-	_, deleteErr := r.DB.Model(&user).Where("id=?").Delete()
+	_, deleteErr := r.DB.Model(&user).Where("id=?", id).Delete()
 	if deleteErr != nil {
 		return false, errors.New("delete user failed")
 	}
@@ -63,4 +65,13 @@ func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
 		return nil, errors.New("query user failed")
 	}
 	return users, nil
+}
+
+func (r *queryResolver) GetUser(ctx context.Context, id string) (*model.User, error) {
+	var user model.User
+	err := r.DB.Model(&user).Where("id=?", id).Select()
+	if err != nil {
+		return nil, errors.New("query user failed")
+	}
+	return &user, nil
 }
