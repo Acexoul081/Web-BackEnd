@@ -1,27 +1,45 @@
+scalar Time
+type AuthToken{
+    accessToken:String!
+    expiredAt: Time!
+}
+type AuthResponse{
+    authToken: AuthToken!
+    user: User!
+}
 type User{
     id: ID!
     username: String!
     email: String!
-    pass: String!
+    password: String!
     profilePic: String!
     membershipId: ID!
+    videos: [Video!]!
+    subscribers: [Abonemen!]!
+    playlists:[Playlist!]!
 }
 
+input loginInput{
+    email:String!
+    password:String!
+}
 
 input newUser{
     username: String!
     email: String!
-    pass: String!
+    password: String
     profilePic: String!
 }
 
 extend type Query{
     users:[User!]!
     getUser(id:ID!):User!
+    getUserSearch(keyword:String!):[User!]!
 }
 
 extend type Mutation{
-    createUser(input:newUser): User!
+    createUser(input:newUser): AuthResponse!
+    login(input: loginInput!): AuthResponse!
     updateUser(id: ID!, input:newUser):User!
     deleteUser(id: ID!):Boolean!
 }

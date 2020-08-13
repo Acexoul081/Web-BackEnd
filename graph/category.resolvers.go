@@ -4,13 +4,13 @@ package graph
 // will be copied through when generating and any unknown code will be moved to the end.
 
 import (
-	"BackEnd/graph/model"
+	"BackEnd/models"
 	"context"
 	"errors"
 )
 
-func (r *mutationResolver) CreateCategory(ctx context.Context, input *model.NewCategory) (*model.Kategori, error) {
-	kategori := model.Kategori{
+func (r *mutationResolver) CreateCategory(ctx context.Context, input *models.NewCategory) (*models.Kategori, error) {
+	kategori := models.Kategori{
 		CategoryName: input.CategoryName,
 	}
 	_, err := r.DB.Model(&kategori).Insert()
@@ -21,8 +21,8 @@ func (r *mutationResolver) CreateCategory(ctx context.Context, input *model.NewC
 	return &kategori, nil
 }
 
-func (r *mutationResolver) UpdateCategory(ctx context.Context, id string, input *model.NewCategory) (*model.Kategori, error) {
-	var kategori model.Kategori
+func (r *mutationResolver) UpdateCategory(ctx context.Context, id string, input *models.NewCategory) (*models.Kategori, error) {
+	var kategori models.Kategori
 
 	err := r.DB.Model(&kategori).Where("id=?", id).First()
 	if err != nil {
@@ -40,7 +40,7 @@ func (r *mutationResolver) UpdateCategory(ctx context.Context, id string, input 
 }
 
 func (r *mutationResolver) DeleteCategory(ctx context.Context, id string) (bool, error) {
-	var kategori model.Kategori
+	var kategori models.Kategori
 
 	err := r.DB.Model(&kategori).Where("id=?", id).First()
 	if err != nil {
@@ -54,8 +54,8 @@ func (r *mutationResolver) DeleteCategory(ctx context.Context, id string) (bool,
 	return true, nil
 }
 
-func (r *queryResolver) Categories(ctx context.Context) ([]*model.Kategori, error) {
-	var categories []*model.Kategori
+func (r *queryResolver) Categories(ctx context.Context) ([]*models.Kategori, error) {
+	var categories []*models.Kategori
 
 	err := r.DB.Model(&categories).Order("id").Select()
 

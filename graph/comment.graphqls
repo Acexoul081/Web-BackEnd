@@ -1,11 +1,11 @@
 type Comment{
     id:ID!
-    userId: ID!
+    user: User!
     videoId: ID!
     comment: String!
     commentDate: String!
-    like: Int!
-    dislike: Int!
+    like: [CommentLikeDetail!]!
+    replies:[Reply!]!
 }
 
 extend type Query{
@@ -18,9 +18,20 @@ extend type Query{
 }
 
 input newComment{
-    userId: ID!
     videoId: ID!
     comment: String!
+}
+
+type CommentLikeDetail{
+    comment: Comment!
+    user:User!
+    like: Boolean!
+}
+
+type ReplyLikeDetail{
+    reply:Reply!
+    user:User!
+    like: Boolean!
 }
 
 extend type Mutation{
@@ -39,11 +50,10 @@ extend type Mutation{
 type Reply{
     id: ID!
     commentId: ID!
-    userId: ID!
+    user: User!
     reply: String!
     replyDate: String!
-    like: Int!
-    dislike: Int!
+    like: [ReplyLikeDetail!]!
 }
 
 

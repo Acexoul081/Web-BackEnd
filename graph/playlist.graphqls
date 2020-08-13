@@ -1,36 +1,51 @@
 type Playlist{
     id: ID!
-    ownerID: ID!
+    owner: User!
     title: String!
     privacy: Boolean!
+    date: String!
+    sort: String!
+    playlistDetail:[PlaylistDetail!]!
+    playlistSub: [PlaylistSub!]!
+    videos: [Video!]!
 }
 
 extend type Query{
     playlists:[Playlist!]!
     playlistDetails:[PlaylistDetail!]!
     getPlaylistByOwnerID(id:ID!):[Playlist!]!
+    getPlaylistByID(id:ID!):Playlist!
+    getVideoCountOnPlaylist(id:ID!): Int!
+    getVideoOfPlaylist(id:ID!):[Video!]!
+    getFirstVideoOfPlaylist(id:ID!):PlaylistDetail!
+    getPlaylistSearch(keyword: String!):[Playlist!]!
 }
 
 input newPlaylist{
-    ownerID: ID!
     title: String!
     privacy: Boolean!
 }
 
+input updatedPlaylist{
+    title: String
+    privacy: Boolean
+    sort: String
+}
+
 extend type Mutation{
     createPlaylist(input:newPlaylist): Playlist!
-    updatePlaylist(id: ID!, input:newPlaylist):Playlist!
+    updatePlaylist(id: ID!, input:updatedPlaylist):Playlist!
     deletePlaylist(id: ID!): Boolean!
     createPlaylistDetail(input:newPlaylistDetail): PlaylistDetail!
     updatePlaylistDetail(id: ID!, input:newPlaylistDetail):PlaylistDetail!
     deletePlaylistDetail(id: ID!):Boolean!
     createPlaylistSub(input: newPlaylistSub): PlaylistSub!
-    deletPlaylistSub(userID:ID!, playlistID:ID!): Boolean!
+    deletePlaylistSub(userID:ID!, playlistID:ID!): Boolean!
 }
 
 type PlaylistDetail{
     playlistId: ID!
-    videoID: ID!
+    video: Video!
 }
 
 input newPlaylistDetail{
@@ -40,7 +55,7 @@ input newPlaylistDetail{
 
 type PlaylistSub{
     playlistID: ID!
-    userID: ID!
+    user: User!
 }
 
 input newPlaylistSub{

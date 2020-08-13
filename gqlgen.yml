@@ -14,8 +14,8 @@ exec:
 
 # Where should any generated models go?
 model:
-  filename: graph/model/models_gen.go
-  package: model
+  filename: models/models_gen.go
+  package: models
 
 # Where should the resolver implementations go?
 resolver:
@@ -54,3 +54,85 @@ models:
       - github.com/99designs/gqlgen/graphql.Int
       - github.com/99designs/gqlgen/graphql.Int64
       - github.com/99designs/gqlgen/graphql.Int32
+  User:
+    model:
+      - BackEnd/models.User
+    fields:
+      videos:
+        resolver: true
+      subscribers:
+        resolver: true
+      playlists:
+        resolver: true
+  Video:
+    model: BackEnd/models.Video
+    fields:
+      user:
+        resolver: true
+      comments:
+        resolver: true
+      like:
+        resolver: true
+  Comment:
+    model: BackEnd/models.Comment
+    fields:
+      user:
+        resolver: true
+      like:
+        resolver: true
+      replies:
+        resolver: true
+  Reply:
+    model: BackEnd/models.Reply
+    fields:
+      user:
+        resolver: true
+      like:
+        resolver: true
+  LikeDetail:
+    model: BackEnd/models.LikeDetail
+    fields:
+      user:
+        resolver: true
+      video:
+        resolver: true
+  CommentLikeDetail:
+    model: BackEnd/models.CommentLikeDetail
+    fields:
+      user:
+        resolver: true
+      video:
+        resolver: true
+  ReplyLikeDetail:
+    model: BackEnd/models.ReplyLikeDetail
+    fields:
+      user:
+        resolver: true
+      video:
+        resolver: true
+  Abonemen:
+    model: BackEnd/models.Abonemen
+    fields:
+      subscriber:
+        resolver: true
+  Playlist:
+    model: BackEnd/models.Playlist
+    fields:
+      owner:
+        resolver: true
+      playlistDetail:
+        resolver: true
+      playlistSub:
+        resolver: true
+      videos:
+        resolver: true
+  PlaylistDetail:
+    model: BackEnd/models.PlaylistDetail
+    fields:
+      video:
+        resolver: true
+  PlaylistSub:
+    model: BackEnd/models.PlaylistSub
+    fields:
+      user:
+        resolver: true

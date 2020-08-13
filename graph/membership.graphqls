@@ -11,8 +11,7 @@ extend type Query{
 }
 
 input newMembershipDetail{
-    membershipId: ID!
-    userId:ID!
+    membershipId: ID
     bill: Int!
 }
 

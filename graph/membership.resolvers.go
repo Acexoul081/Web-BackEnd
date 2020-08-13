@@ -4,30 +4,52 @@ package graph
 // will be copied through when generating and any unknown code will be moved to the end.
 
 import (
-	"BackEnd/graph/model"
+	"BackEnd/middleware"
+	"BackEnd/models"
 	"context"
 	"errors"
 	"time"
 )
 
-func (r *mutationResolver) CreateMembershipDetail(ctx context.Context, input *model.NewMembershipDetail) (*model.MembershipDetail, error) {
-	membershipDetail := model.MembershipDetail{
-		UserID:       input.UserID,
-		Bill:         input.Bill,
-		MembershipID: input.MembershipID,
-		Date:         time.Now().Format("2006-01-02 15:04:05"),
+func (r *mutationResolver) CreateMembershipDetail(ctx context.Context, input *models.NewMembershipDetail) (*models.MembershipDetail, error) {
+	currentUser, err := middleware.GetCurrentUserFromCTX(ctx)
+	if err != nil {
+		return nil, errors.New("unauthenticated")
 	}
+	var membershipDetail models.MembershipDetail
 
-	_, err := r.DB.Model(&membershipDetail).Insert()
+	err = r.DB.Model(&membershipDetail).Where("user_id = ?", currentUser.ID).Select()
 
 	if err != nil {
-		return nil, errors.New("insert membership detail failed")
+		newMembershipDetail := models.MembershipDetail{
+			Bill:         input.Bill,
+			MembershipID: *input.MembershipID,
+			Date:         time.Now().Format("2006-01-02 15:04:05"),
+			UserID:       currentUser.ID,
+		}
+
+		_, err = r.DB.Model(&newMembershipDetail).Insert()
+
+		if err != nil {
+			return nil, errors.New("insert membership detail failed")
+		}
+		return &newMembershipDetail, nil
+	}
+	addDate, parseErr := time.Parse("2006-01-02 15:04:05", membershipDetail.Date)
+	if parseErr != nil {
+		return nil, errors.New(addDate.String())
+	}
+	addDate = addDate.AddDate(0, 1, 0)
+	membershipDetail.Date = addDate.Format("2006-01-02 15:04:05")
+	_, updateErr := r.DB.Model(&membershipDetail).Where("user_id=?", currentUser.ID).Update()
+	if updateErr != nil {
+		return nil, errors.New("update membership error")
 	}
 	return &membershipDetail, nil
 }
 
-func (r *mutationResolver) UpdateMembershipDetail(ctx context.Context, userID string, input *model.NewMembershipDetail) (*model.MembershipDetail, error) {
-	var membershipDetail model.MembershipDetail
+func (r *mutationResolver) UpdateMembershipDetail(ctx context.Context, userID string, input *models.NewMembershipDetail) (*models.MembershipDetail, error) {
+	var membershipDetail models.MembershipDetail
 
 	err := r.DB.Model(&membershipDetail).Where("userId=?", userID).First()
 	if err != nil {
@@ -44,7 +66,7 @@ func (r *mutationResolver) UpdateMembershipDetail(ctx context.Context, userID st
 }
 
 func (r *mutationResolver) DeleteMembershipDetail(ctx context.Context, userID string) (bool, error) {
-	var membershipDetail model.MembershipDetail
+	var membershipDetail models.MembershipDetail
 
 	err := r.DB.Model(&membershipDetail).Where("userId=?", userID).First()
 	if err != nil {
@@ -59,8 +81,8 @@ func (r *mutationResolver) DeleteMembershipDetail(ctx context.Context, userID st
 	return true, nil
 }
 
-func (r *mutationResolver) CreateMembership(ctx context.Context, input *model.NewMembership) (*model.Membership, error) {
-	membership := model.Membership{
+func (r *mutationResolver) CreateMembership(ctx context.Context, input *models.NewMembership) (*models.Membership, error) {
+	membership := models.Membership{
 		Type: input.Type,
 	}
 
@@ -73,8 +95,8 @@ func (r *mutationResolver) CreateMembership(ctx context.Context, input *model.Ne
 	return &membership, nil
 }
 
-func (r *mutationResolver) UpdateMembership(ctx context.Context, id string, input *model.NewMembership) (*model.Membership, error) {
-	var membership model.Membership
+func (r *mutationResolver) UpdateMembership(ctx context.Context, id string, input *models.NewMembership) (*models.Membership, error) {
+	var membership models.Membership
 
 	err := r.DB.Model(&membership).Where("id=?", id).First()
 	if err != nil {
@@ -92,7 +114,7 @@ func (r *mutationResolver) UpdateMembership(ctx context.Context, id string, inpu
 }
 
 func (r *mutationResolver) DeleteMembership(ctx context.Context, id string) (bool, error) {
-	var membership model.Membership
+	var membership models.Membership
 
 	err := r.DB.Model(&membership).Where("id=?", id).First()
 
@@ -108,8 +130,8 @@ func (r *mutationResolver) DeleteMembership(ctx context.Context, id string) (boo
 	return true, nil
 }
 
-func (r *queryResolver) MembershipDetails(ctx context.Context) ([]*model.MembershipDetail, error) {
-	var membershipDetails []*model.MembershipDetail
+func (r *queryResolver) MembershipDetails(ctx context.Context) ([]*models.MembershipDetail, error) {
+	var membershipDetails []*models.MembershipDetail
 
 	err := r.DB.Model(&membershipDetails).Order("bill").Select()
 
@@ -120,8 +142,8 @@ func (r *queryResolver) MembershipDetails(ctx context.Context) ([]*model.Members
 	return membershipDetails, nil
 }
 
-func (r *queryResolver) Memberships(ctx context.Context) ([]*model.Membership, error) {
-	var memberships []*model.Membership
+func (r *queryResolver) Memberships(ctx context.Context) ([]*models.Membership, error) {
+	var memberships []*models.Membership
 	err := r.DB.Model(&memberships).Order("id").Select()
 
 	if err != nil {

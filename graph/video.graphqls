@@ -1,37 +1,45 @@
 type Video{
     id: ID!
-    userID: ID!
+    user: User!
     link: String!
     title: String!
     view: Int!
-    like: Int!
-    dislike: Int!
+    like: [LikeDetail!]!
     dateUpload: String!
     datePublish: String!
     description: String!
     thumbnail: String!
     category: Int!
-    label: String!
+    label: Boolean!
     privacy: Boolean!
+    comments: [Comment!]!
+    location: String!
+}
+
+type LikeDetail{
+    video: Video!
+    user:User!
+    like: Boolean!
 }
 
 input newVideo{
-    userID: ID!
     link: String!
     title: String!
     description: String!
     thumbnail: String!
     category: Int!
-    label: String!
+    label: Boolean!
     privacy: Boolean!
+    location: String!
+    datePublish: String
 }
 
 extend type Mutation{
     createVideo(input:newVideo): Video!
     updateVideo(id: ID!, input:newVideo): Video!
     updateVideoView(id: ID!): Video!
-    updateVideoLike(id:ID!):Video!
-    updateVideoDislike(id:ID!):Video!
+    updateVideoLike(id:ID!):LikeDetail!
+    updateVideoDislike(id:ID!):LikeDetail!
     deleteVideo(id: ID!):Boolean!
 }
 
@@ -43,4 +51,8 @@ extend type Query{
     getVideosByUserLimit(userId:ID!, limit:Int!):[Video!]!
     getLastUploadedVideo(userId:ID!):Video!
     getVideoSearch(keyword: String!):[Video!]!
+    getTrendingVideo:[Video!]!
+    getRecommendationVideo(category: Int!, videoID: ID!):[Video!]!
+    getVideoByLocation(location:String!):[Video!]!
+    getVideosByTime(time:String!, keyword:String!):[Video!]!
 }
