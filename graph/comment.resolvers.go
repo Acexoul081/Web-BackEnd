@@ -62,7 +62,7 @@ func (r *mutationResolver) CreateComment(ctx context.Context, input *models.NewC
 	currentUser, err := middleware.GetCurrentUserFromCTX(ctx)
 	if err != nil {
 		return nil, errors.New("unauthenticated")
-	}
+	} 
 	comment := models.Comment{
 		VideoID:     input.VideoID,
 		Comment:     input.Comment,
