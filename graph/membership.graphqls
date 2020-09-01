@@ -1,5 +1,5 @@
 type MembershipDetail{
-    membershipId: ID!
+    membership: Membership!
     userId:ID!
     date: String!
     bill: Int!

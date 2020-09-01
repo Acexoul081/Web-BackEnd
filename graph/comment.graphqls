@@ -37,13 +37,13 @@ type ReplyLikeDetail{
 extend type Mutation{
     createComment(input:newComment): Comment!
     updateComment(id: ID!, input:newComment):Comment!
-    updateCommentLike(id:ID!):Comment!
-    updateCommentDislike(id:ID!):Comment!
+    updateCommentLike(id:ID!):CommentLikeDetail!
+    updateCommentDislike(id:ID!):CommentLikeDetail!
     deleteComment(id: ID!):Boolean!
     createReply(input:newReply): Reply!
     updateReply(id: ID!, input:newReply):Reply!
-    updateReplyLike(id:ID!):Reply!
-    updateReplyDislike(id:ID!):Reply!
+    updateReplyLike(id:ID!):ReplyLikeDetail!
+    updateReplyDislike(id:ID!):ReplyLikeDetail!
     deleteReply(id: ID!):Boolean!
 }
 
@@ -59,6 +59,5 @@ type Reply{
 
 input newReply{
     commentId: ID!
-    userId: ID!
     reply: String!
 }

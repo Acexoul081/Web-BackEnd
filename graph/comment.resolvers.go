@@ -62,12 +62,12 @@ func (r *mutationResolver) CreateComment(ctx context.Context, input *models.NewC
 	currentUser, err := middleware.GetCurrentUserFromCTX(ctx)
 	if err != nil {
 		return nil, errors.New("unauthenticated")
-	} 
+	}
 	comment := models.Comment{
 		VideoID:     input.VideoID,
 		Comment:     input.Comment,
 		CommentDate: time.Now().Format("2006-01-02 15:04:05"),
-		UserID: currentUser.ID,
+		UserID:      currentUser.ID,
 	}
 
 	_, err = r.DB.Model(&comment).Insert()
@@ -95,12 +95,65 @@ func (r *mutationResolver) UpdateComment(ctx context.Context, id string, input *
 	return &comment, nil
 }
 
-func (r *mutationResolver) UpdateCommentLike(ctx context.Context, id string) (*models.Comment, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *mutationResolver) UpdateCommentLike(ctx context.Context, id string) (*models.CommentLikeDetail, error) {
+	currentUser, err := middleware.GetCurrentUserFromCTX(ctx)
+	if err != nil {
+		return nil, errors.New("unauthenticated")
+	}
+	var likeDetail models.CommentLikeDetail
+	err = r.DB.Model(&likeDetail).Where("user_id=? and comment_id=?", currentUser.ID, id).Select()
+	if err == nil {
+		fmt.Println(err)
+		likeDetail.Like = true
+		likeDetail.UserID = currentUser.ID
+		likeDetail.CommentID = id
+		_, updateErr := r.DB.Model(&likeDetail).Where("user_id=? and comment_id =?", currentUser.ID, id).Update()
+		if updateErr != nil {
+			return nil, errors.New("update like error")
+		}
+		return &likeDetail, nil
+	}
+	like := models.CommentLikeDetail{
+		CommentID: id,
+		UserID:    currentUser.ID,
+		Like:      true,
+	}
+
+	_, err = r.DB.Model(&like).Insert()
+	if err != nil {
+		return nil, errors.New("like comment failed")
+	}
+	return &like, nil
 }
 
-func (r *mutationResolver) UpdateCommentDislike(ctx context.Context, id string) (*models.Comment, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *mutationResolver) UpdateCommentDislike(ctx context.Context, id string) (*models.CommentLikeDetail, error) {
+	currentUser, err := middleware.GetCurrentUserFromCTX(ctx)
+	if err != nil {
+		return nil, errors.New("unauthenticated")
+	}
+	var likeDetail models.CommentLikeDetail
+	err = r.DB.Model(&likeDetail).Where("user_id=? and comment_id=?", currentUser.ID, id).Select()
+	if err == nil {
+		likeDetail.Like = false
+		likeDetail.UserID = currentUser.ID
+		likeDetail.CommentID = id
+		_, updateErr := r.DB.Model(&likeDetail).Where("user_id=? and comment_id =?", currentUser.ID, id).Update()
+		if updateErr != nil {
+			return nil, errors.New("update dislike error")
+		}
+		return &likeDetail, nil
+	}
+	dislike := models.CommentLikeDetail{
+		CommentID: id,
+		UserID:    currentUser.ID,
+		Like:      false,
+	}
+
+	_, err = r.DB.Model(&dislike).Insert()
+	if err != nil {
+		return nil, errors.New("dislike comment failed")
+	}
+	return &dislike, nil
 }
 
 func (r *mutationResolver) DeleteComment(ctx context.Context, id string) (bool, error) {
@@ -119,14 +172,18 @@ func (r *mutationResolver) DeleteComment(ctx context.Context, id string) (bool, 
 }
 
 func (r *mutationResolver) CreateReply(ctx context.Context, input *models.NewReply) (*models.Reply, error) {
+	currentUser, err := middleware.GetCurrentUserFromCTX(ctx)
+	if err != nil {
+		return nil, errors.New("unauthenticated")
+	}
 	reply := models.Reply{
-		UserID:    input.UserID,
+		UserID:    currentUser.ID,
 		CommentID: input.CommentID,
 		Reply:     input.Reply,
 		ReplyDate: time.Now().Format("2006-01-02 15:04:05"),
 	}
 
-	_, err := r.DB.Model(&reply).Insert()
+	_, err = r.DB.Model(&reply).Insert()
 
 	if err != nil {
 		return nil, errors.New("insert reply failed")
@@ -152,12 +209,65 @@ func (r *mutationResolver) UpdateReply(ctx context.Context, id string, input *mo
 	return &reply, nil
 }
 
-func (r *mutationResolver) UpdateReplyLike(ctx context.Context, id string) (*models.Reply, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *mutationResolver) UpdateReplyLike(ctx context.Context, id string) (*models.ReplyLikeDetail, error) {
+	currentUser, err := middleware.GetCurrentUserFromCTX(ctx)
+	if err != nil {
+		return nil, errors.New("unauthenticated")
+	}
+	var likeDetail models.ReplyLikeDetail
+	err = r.DB.Model(&likeDetail).Where("user_id=? and reply_id=?", currentUser.ID, id).Select()
+	if err == nil {
+		fmt.Println(err)
+		likeDetail.Like = true
+		likeDetail.UserID = currentUser.ID
+		likeDetail.ReplyID = id
+		_, updateErr := r.DB.Model(&likeDetail).Where("user_id=? and reply_id =?", currentUser.ID, id).Update()
+		if updateErr != nil {
+			return nil, errors.New("update like error")
+		}
+		return &likeDetail, nil
+	}
+	like := models.ReplyLikeDetail{
+		ReplyID: id,
+		UserID:  currentUser.ID,
+		Like:    true,
+	}
+
+	_, err = r.DB.Model(&like).Insert()
+	if err != nil {
+		return nil, errors.New("like reply failed")
+	}
+	return &like, nil
 }
 
-func (r *mutationResolver) UpdateReplyDislike(ctx context.Context, id string) (*models.Reply, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *mutationResolver) UpdateReplyDislike(ctx context.Context, id string) (*models.ReplyLikeDetail, error) {
+	currentUser, err := middleware.GetCurrentUserFromCTX(ctx)
+	if err != nil {
+		return nil, errors.New("unauthenticated")
+	}
+	var likeDetail models.ReplyLikeDetail
+	err = r.DB.Model(&likeDetail).Where("user_id=? and reply_id=?", currentUser.ID, id).Select()
+	if err == nil {
+		likeDetail.Like = false
+		likeDetail.UserID = currentUser.ID
+		likeDetail.ReplyID = id
+		_, updateErr := r.DB.Model(&likeDetail).Where("user_id=? and reply_id =?", currentUser.ID, id).Update()
+		if updateErr != nil {
+			return nil, errors.New("update dislike error")
+		}
+		return &likeDetail, nil
+	}
+	dislike := models.ReplyLikeDetail{
+		ReplyID: id,
+		UserID:  currentUser.ID,
+		Like:    false,
+	}
+
+	_, err = r.DB.Model(&dislike).Insert()
+	if err != nil {
+		return nil, errors.New("dislike reply failed")
+	}
+	return &dislike, nil
 }
 
 func (r *mutationResolver) DeleteReply(ctx context.Context, id string) (bool, error) {

@@ -4,12 +4,22 @@ package graph
 // will be copied through when generating and any unknown code will be moved to the end.
 
 import (
+	"BackEnd/graph/generated"
 	"BackEnd/middleware"
 	"BackEnd/models"
 	"context"
 	"errors"
 	"time"
 )
+
+func (r *membershipDetailResolver) Membership(ctx context.Context, obj *models.MembershipDetail) (*models.Membership, error) {
+	var membership models.Membership
+	err := r.DB.Model(&membership).Where("id=?", obj.MembershipID).Select()
+	if err != nil {
+		return nil, errors.New("failed get membership from detail")
+	}
+	return &membership, nil
+}
 
 func (r *mutationResolver) CreateMembershipDetail(ctx context.Context, input *models.NewMembershipDetail) (*models.MembershipDetail, error) {
 	currentUser, err := middleware.GetCurrentUserFromCTX(ctx)
@@ -152,3 +162,10 @@ func (r *queryResolver) Memberships(ctx context.Context) ([]*models.Membership, 
 
 	return memberships, nil
 }
+
+// MembershipDetail returns generated.MembershipDetailResolver implementation.
+func (r *Resolver) MembershipDetail() generated.MembershipDetailResolver {
+	return &membershipDetailResolver{r}
+}
+
+type membershipDetailResolver struct{ *Resolver }

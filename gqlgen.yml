@@ -60,9 +60,13 @@ models:
     fields:
       videos:
         resolver: true
-      subscribers:
+      subscription:
+        resolver: true
+      subscriber:
         resolver: true
       playlists:
+        resolver: true
+      membership:
         resolver: true
   Video:
     model: BackEnd/models.Video
@@ -115,6 +119,10 @@ models:
     fields:
       subscriber:
         resolver: true
+      user:
+        resolver: true
+      notification:
+        resolver: false
   Playlist:
     model: BackEnd/models.Playlist
     fields:
@@ -134,5 +142,28 @@ models:
   PlaylistSub:
     model: BackEnd/models.PlaylistSub
     fields:
+      user:
+        resolver: true
+      playlist:
+        resolver: true
+  MembershipDetail:
+    model: BackEnd/models.MembershipDetail
+    fields:
+      membership:
+        resolver: true
+  Post:
+    model: BackEnd/models.Post
+    fields:
+      user:
+        resolver: true
+      channel:
+        resolver: true
+      like:
+        resolver: true
+  PostLikeDetail:
+    model: BackEnd/models.PostLikeDetail
+    fields:
+      post:
+        resolver: true
       user:
         resolver: true

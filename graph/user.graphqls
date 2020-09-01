@@ -13,10 +13,16 @@ type User{
     email: String!
     password: String!
     profilePic: String!
-    membershipId: ID!
+    membership: MembershipDetail
     videos: [Video!]!
-    subscribers: [Abonemen!]!
+    subscription: [Abonemen!]!
+    subscriber: [Abonemen!]!
     playlists:[Playlist!]!
+    location: String!
+    description: String!
+    joinDate: String!
+    link: String!
+    banner: String!
 }
 
 input loginInput{
@@ -31,15 +37,31 @@ input newUser{
     profilePic: String!
 }
 
+input updatedUser{
+    description: String
+    link: String
+    banner: String
+    icon: String
+}
+
 extend type Query{
     users:[User!]!
     getUser(id:ID!):User!
     getUserSearch(keyword:String!):[User!]!
+    getNotification(ids: [ID!]!):Notification!
+}
+
+type Notification{
+    posts: [Post!]!
+    videos: [Video!]!
 }
 
 extend type Mutation{
     createUser(input:newUser): AuthResponse!
     login(input: loginInput!): AuthResponse!
-    updateUser(id: ID!, input:newUser):User!
+    updateUser(input:updatedUser!):User!
     deleteUser(id: ID!):Boolean!
+    changeUserLocation(location: String!):User!
+    insertAbout(description: String!):User!
+    updateAbout(description: String!): User!
 }

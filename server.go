@@ -4,18 +4,18 @@ import (
 	"BackEnd/graph"
 	"BackEnd/graph/generated"
 	"github.com/go-chi/chi/middleware"
+	"github.com/go-redis/redis/v8"
 
 	customMiddleware "BackEnd/middleware"
 	"BackEnd/postgre"
-	"github.com/go-pg/pg/v10"
-	"log"
-	"net/http"
-	"os"
-
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi"
+	"github.com/go-pg/pg/v10"
 	"github.com/rs/cors"
+	"log"
+	"net/http"
+	"os"
 )
 
 const defaultPort = "5000"
@@ -30,13 +30,19 @@ func main() {
 		Database: "YouRJube",
 	})
 
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+
 	db.AddQueryHook(postgre.DBLogger{})
 
 	defer db.Close()
 	// Add CORS middleware around every request
 	// See https://github.com/rs/cors for full option listing
 	router.Use(cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:4200"},
+		AllowedOrigins:   []string{"http://localhost:4200", "http://192.168.241.1:4200"},
 		AllowedHeaders: []string{"Authorization","Content-Type","Origin"},
 		AllowedMethods: []string{"GET","PUT","POST","DELETE","PATCH","OPTIONS"},
 		AllowCredentials: true,
@@ -46,7 +52,7 @@ func main() {
 	router.Use(middleware.RequestID)
 	router.Use(middleware.Logger)
 
-	resolver := graph.Resolver{DB: db}
+	resolver := graph.Resolver{DB: db, RDB: rdb}
 
 	router.Use(customMiddleware.AuthMiddleware(resolver.Query()))
 
@@ -55,7 +61,7 @@ func main() {
 		port = defaultPort
 	}
 
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{DB: db}}))
+	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{DB: db,RDB: rdb}}))
 
 	queryHandler := srv
 	router.Handle("/", playground.Handler("GraphQL playground", "/query"))

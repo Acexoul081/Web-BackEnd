@@ -16,4 +16,5 @@ type Video struct {
 	Label       bool `json:"label"`
 	Privacy     bool   `json:"privacy"`
 	Location    string `json:"location"`
+	Premium bool `json:"premium"`
 }

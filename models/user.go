@@ -11,10 +11,16 @@ type User struct {
 	ID           string   `json:"id"`
 	Username     string   `json:"username"`
 	Email        string   `json:"email"`
-	Password         string   `json:"password"`
+	Password      string   `json:"password"`
 	ProfilePic   string   `json:"profilePic"`
 	MembershipID string   `json:"membershipId"`
+	Location string `json:"location"`
+	Description string `json:"description"`
+	JoinDate string `json:"join_date"`
+	Link string `json:"link"`
+	Banner string `json:"banner"`
 }
+
 
 func (u *User) HashPassword(pass string) error {
 	bytePassword := []byte(pass)

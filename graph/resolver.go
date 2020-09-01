@@ -1,7 +1,10 @@
 //go:generate go run github.com/99designs/gqlgen
 package graph
 
-import "github.com/go-pg/pg/v10"
+import (
+	"github.com/go-pg/pg/v10"
+	"github.com/go-redis/redis/v8"
+)
 
 // This file will not be regenerated automatically.
 //
@@ -9,4 +12,5 @@ import "github.com/go-pg/pg/v10"
 
 type Resolver struct{
 	DB *pg.DB
+	RDB *redis.Client
 }

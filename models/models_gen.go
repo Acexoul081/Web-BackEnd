@@ -26,11 +26,9 @@ type Membership struct {
 	Type string `json:"type"`
 }
 
-type MembershipDetail struct {
-	MembershipID string `json:"membershipId"`
-	UserID       string `json:"userId"`
-	Date         string `json:"date"`
-	Bill         int    `json:"bill"`
+type Notification struct {
+	Posts  []*Post  `json:"posts"`
+	Videos []*Video `json:"videos"`
 }
 
 type LoginInput struct {
@@ -68,18 +66,21 @@ type NewPlaylistDetail struct {
 
 type NewPlaylistSub struct {
 	PlaylistID string `json:"playlistID"`
-	UserID     string `json:"userID"`
+}
+
+type NewPost struct {
+	ChannelID string `json:"channelId"`
+	Post      string `json:"post"`
+	Thumbnail string `json:"thumbnail"`
 }
 
 type NewReply struct {
 	CommentID string `json:"commentId"`
-	UserID    string `json:"userId"`
 	Reply     string `json:"reply"`
 }
 
 type NewSubscription struct {
-	UserID       string `json:"userID"`
-	SubscriberID string `json:"subscriberID"`
+	UserID string `json:"userID"`
 }
 
 type NewUser struct {
@@ -102,7 +103,22 @@ type NewVideo struct {
 }
 
 type UpdatedPlaylist struct {
-	Title   *string `json:"title"`
-	Privacy *bool   `json:"privacy"`
-	Sort    *string `json:"sort"`
+	Title       *string `json:"title"`
+	Privacy     *bool   `json:"privacy"`
+	Sort        *string `json:"sort"`
+	Description *string `json:"description"`
+}
+
+type UpdatedUser struct {
+	Description *string `json:"description"`
+	Link        *string `json:"link"`
+	Banner      *string `json:"banner"`
+	Icon        *string `json:"icon"`
+}
+
+type UpdatedVideo struct {
+	Description *string `json:"description"`
+	Privacy     *bool   `json:"privacy"`
+	Thumbnail   *string `json:"thumbnail"`
+	Title       *string `json:"title"`
 }

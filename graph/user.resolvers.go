@@ -5,11 +5,16 @@ package graph
 
 import (
 	"BackEnd/graph/generated"
+	"BackEnd/middleware"
 	"BackEnd/models"
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"strings"
+	"time"
+
+	pg "github.com/go-pg/pg/v9"
 )
 
 func (r *mutationResolver) CreateUser(ctx context.Context, input *models.NewUser) (*models.AuthResponse, error) {
@@ -37,6 +42,10 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input *models.NewUser
 		ProfilePic:   input.ProfilePic,
 		Username:     input.Username,
 		MembershipID: "",
+		JoinDate:     time.Now().Format("2006-01-02 15:04:05"),
+	}
+	if input.Password != nil {
+		err = newUser.HashPassword(*input.Password)
 	}
 
 	_, err = r.DB.Model(&newUser).Insert()
@@ -74,19 +83,35 @@ func (r *mutationResolver) Login(ctx context.Context, input models.LoginInput) (
 	}, nil
 }
 
-func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input *models.NewUser) (*models.User, error) {
+func (r *mutationResolver) UpdateUser(ctx context.Context, input models.UpdatedUser) (*models.User, error) {
+	currentUser, err := middleware.GetCurrentUserFromCTX(ctx)
+	if err != nil {
+		return nil, errors.New("unauthenticated")
+	}
+
 	var user models.User
 
-	err := r.DB.Model(&user).Where("id=?", id).First()
+	err = r.DB.Model(&user).Where("id=?", currentUser.ID).First()
 	if err != nil {
 		return nil, errors.New("user not found")
 	}
-	user.Email = input.Email
-	user.ProfilePic = input.ProfilePic
-	user.Username = input.Username
-	_, updateErr := r.DB.Model(&user).Where("id=?", id).Update()
+	if input.Description != nil {
+		user.Description = *input.Description
+	}
+
+	if input.Link != nil {
+		user.Link = *input.Link
+	}
+
+	if input.Banner != nil {
+		user.Banner = *input.Banner
+	}
+	if input.Icon != nil {
+		user.ProfilePic = *input.Icon
+	}
+	_, updateErr := r.DB.Model(&user).Where("id=?", currentUser.ID).Update()
 	if updateErr != nil {
-		return nil, errors.New("update user fialed")
+		return nil, errors.New("update user failed")
 	}
 	return &user, nil
 }
@@ -103,6 +128,27 @@ func (r *mutationResolver) DeleteUser(ctx context.Context, id string) (bool, err
 		return false, errors.New("delete user failed")
 	}
 	return true, nil
+}
+
+func (r *mutationResolver) ChangeUserLocation(ctx context.Context, location string) (*models.User, error) {
+	currentUser, err := middleware.GetCurrentUserFromCTX(ctx)
+	if err != nil {
+		return nil, errors.New("unauthenticated")
+	}
+	currentUser.Location = location
+	_, updateErr := r.DB.Model(currentUser).Where("id=?", currentUser.ID).Update()
+	if updateErr != nil {
+		return nil, errors.New("update location failed")
+	}
+	return currentUser, nil
+}
+
+func (r *mutationResolver) InsertAbout(ctx context.Context, description string) (*models.User, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *mutationResolver) UpdateAbout(ctx context.Context, description string) (*models.User, error) {
+	panic(fmt.Errorf("not implemented"))
 }
 
 func (r *queryResolver) Users(ctx context.Context) ([]*models.User, error) {
@@ -136,6 +182,35 @@ func (r *queryResolver) GetUserSearch(ctx context.Context, keyword string) ([]*m
 	return users, nil
 }
 
+func (r *queryResolver) GetNotification(ctx context.Context, ids []string) (*models.Notification, error) {
+	var notification models.Notification
+
+	var videos []*models.Video
+	err := r.DB.Model(&videos).Where("user_id in (?)", pg.In(ids)).Order("date_upload DESC").Limit(5).Select()
+	if err != nil {
+		return nil, errors.New("failed get video for notification")
+	}
+	notification.Videos = videos
+
+	var posts []*models.Post
+	err = r.DB.Model(&posts).Where("channel_id in (?)", pg.In(ids)).Order("post_date DESC").Limit(5).Select()
+	if err != nil {
+		return nil, errors.New("failed get post for notification")
+	}
+	notification.Posts = posts
+
+	return &notification, nil
+}
+
+func (r *userResolver) Membership(ctx context.Context, obj *models.User) (*models.MembershipDetail, error) {
+	var membershipDet models.MembershipDetail
+	err := r.DB.Model(&membershipDet).Where("user_id=?", obj.ID).Select()
+	if err != nil {
+		return nil, nil
+	}
+	return &membershipDet, nil
+}
+
 func (r *userResolver) Videos(ctx context.Context, obj *models.User) ([]*models.Video, error) {
 	var videos []*models.Video
 	err := r.DB.Model(&videos).Where("user_id=?", obj.ID).Select()
@@ -145,13 +220,22 @@ func (r *userResolver) Videos(ctx context.Context, obj *models.User) ([]*models.
 	return videos, nil
 }
 
-func (r *userResolver) Subscribers(ctx context.Context, obj *models.User) ([]*models.Abonemen, error) {
-	var subscriber []*models.Abonemen
-	err := r.DB.Model(&subscriber).Where("user_id=?", obj.ID).Select()
+func (r *userResolver) Subscription(ctx context.Context, obj *models.User) ([]*models.Abonemen, error) {
+	var subs []*models.Abonemen
+	err := r.DB.Model(&subs).Where("subscriber_id=?", obj.ID).Select()
 	if err != nil {
-		return nil, errors.New("failed query subscriber from user")
+		return nil, errors.New("no subscription")
 	}
-	return subscriber, nil
+	return subs, nil
+}
+
+func (r *userResolver) Subscriber(ctx context.Context, obj *models.User) ([]*models.Abonemen, error) {
+	var subs []*models.Abonemen
+	err := r.DB.Model(&subs).Where("user_id=?", obj.ID).Select()
+	if err != nil {
+		return nil, errors.New("no subscriber")
+	}
+	return subs, nil
 }
 
 func (r *userResolver) Playlists(ctx context.Context, obj *models.User) ([]*models.Playlist, error) {
@@ -160,6 +244,12 @@ func (r *userResolver) Playlists(ctx context.Context, obj *models.User) ([]*mode
 	if err != nil {
 		return nil, errors.New("failed query playlist from user")
 	}
+	var subs []*models.PlaylistSub
+	err = r.DB.Model(&subs).Where("user_id = ?", obj.ID).Select()
+	if err != nil {
+		return nil, err
+	}
+
 	return playlist, nil
 }
 

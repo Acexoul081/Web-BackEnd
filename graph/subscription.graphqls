@@ -1,6 +1,7 @@
 
 type Abonemen{
-    userID: ID!
+    notification: Boolean!
+    user: User!
     subscriber: User!
 }
 
@@ -11,11 +12,10 @@ extend type Query{
 
 input newSubscription{
     userID: ID!
-    subscriberID: ID!
 }
 
 extend type Mutation{
     createSubscription(input:newSubscription): Abonemen!
-    updateSubscription(id: ID!, input:newSubscription):Abonemen!
+    updateSubscription(id: ID!, notif: Boolean!):Abonemen!
     deleteSubscription(id: ID!):Boolean!
 }

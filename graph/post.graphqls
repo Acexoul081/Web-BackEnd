@@ -1,0 +1,32 @@
+type Post{
+    id:ID!
+    user: User!
+    channel: User!
+    post: String!
+    postDate: String!
+    thumbnail: String!
+    like: [PostLikeDetail!]!
+}
+
+type PostLikeDetail{
+    post: Post!
+    user:User!
+    like: Boolean!
+}
+input newPost{
+    channelId: ID!
+    post: String!
+    thumbnail: String!
+}
+
+extend type Mutation{
+    createPost(input:newPost!): Post!
+    updatePostLike(id: ID!):PostLikeDetail!
+    updatePostDislike(id: ID!):PostLikeDetail!
+
+}
+
+extend type Query{
+    getPostsById(id: ID!):[Post!]!
+
+}
