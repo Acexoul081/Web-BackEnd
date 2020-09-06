@@ -53,6 +53,7 @@ func (r *mutationResolver) UpdatePlaylist(ctx context.Context, id string, input 
 	if input.Privacy != nil {
 		playlist.Privacy = *input.Privacy
 	}
+	playlist.Date = time.Now().Format("2006-01-02 15:04:05")
 	_, updateErr := r.DB.Model(&playlist).Where("id=?", id).Update()
 
 	if updateErr != nil {
@@ -301,13 +302,19 @@ func (r *queryResolver) PlaylistDetails(ctx context.Context) ([]*models.Playlist
 }
 
 func (r *queryResolver) GetPlaylistByOwnerID(ctx context.Context, id string, limit *int) ([]*models.Playlist, error) {
+	currentUser, err := middleware.GetCurrentUserFromCTX(ctx)
 	var playlists []*models.Playlist
 
-	query := r.DB.Model(&playlists).Where("owner_id = ?", id).Order("id")
+	query := r.DB.Model(&playlists)
+	if currentUser!= nil && currentUser.ID == id{
+		query.Where("owner_id = ?", id).Order("id")
+	}else{
+		query.Where("owner_id = ? and privacy is null" , id).Order("id")
+	}
 	if limit != nil {
 		query.Limit(*limit)
 	}
-	err := query.Select()
+	err = query.Select()
 	if err != nil {
 		return nil, errors.New("failed to query playlists by owner")
 	}

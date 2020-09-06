@@ -3,19 +3,23 @@ package main
 import (
 	"BackEnd/graph"
 	"BackEnd/graph/generated"
-	"github.com/go-chi/chi/middleware"
-	"github.com/go-redis/redis/v8"
-
 	customMiddleware "BackEnd/middleware"
 	"BackEnd/postgre"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 	"github.com/go-pg/pg/v10"
+	"github.com/go-redis/redis/v8"
 	"github.com/rs/cors"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
+	"golang.org/x/net/context"
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 const defaultPort = "5000"
@@ -36,6 +40,17 @@ func main() {
 		DB:       0,  // use default DB
 	})
 
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	mgdb, err := mongo.Connect(ctx, options.Client().ApplyURI(
+		"mongodb+srv://admin:admin@cluster0.nigor.gcp.mongodb.net/test?retryWrites=true&w=majority",
+	))
+	if err != nil { log.Fatal(err) }
+	err = mgdb.Ping(ctx, readpref.Primary())
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	db.AddQueryHook(postgre.DBLogger{})
 
 	defer db.Close()
@@ -52,7 +67,7 @@ func main() {
 	router.Use(middleware.RequestID)
 	router.Use(middleware.Logger)
 
-	resolver := graph.Resolver{DB: db, RDB: rdb}
+	resolver := graph.Resolver{DB: db, RDB: rdb, MGDB: mgdb}
 
 	router.Use(customMiddleware.AuthMiddleware(resolver.Query()))
 
@@ -61,7 +76,7 @@ func main() {
 		port = defaultPort
 	}
 
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{DB: db,RDB: rdb}}))
+	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{DB: db,RDB: rdb, MGDB: mgdb}}))
 
 	queryHandler := srv
 	router.Handle("/", playground.Handler("GraphQL playground", "/query"))

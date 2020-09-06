@@ -31,6 +31,21 @@ type Notification struct {
 	Videos []*Video `json:"videos"`
 }
 
+type VideoMgdb struct {
+	ID          string `json:"id"`
+	Link        string `json:"link"`
+	SecondLink  string `json:"secondLink"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Thumbnail   string `json:"thumbnail"`
+	Category    int    `json:"category"`
+	Label       bool   `json:"label"`
+	Privacy     bool   `json:"privacy"`
+	Location    string `json:"location"`
+	View        int    `json:"view"`
+	User        *User  `json:"user"`
+}
+
 type LoginInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`

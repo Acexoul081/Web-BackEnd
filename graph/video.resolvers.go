@@ -11,12 +11,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"math/rand"
 	"strings"
 	"time"
 
 	pg "github.com/go-pg/pg/v10"
 	redis "github.com/go-redis/redis/v8"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func (r *likeDetailResolver) Video(ctx context.Context, obj *models.LikeDetail) (*models.Video, error) {
@@ -187,6 +189,36 @@ func (r *mutationResolver) DeleteVideo(ctx context.Context, id string) (bool, er
 		return false, errors.New("delete video failed")
 	}
 	return true, nil
+}
+
+func (r *mutationResolver) InsertVideoToMgdb(ctx context.Context, input *models.NewVideo, secondLink string) (*models.Video, error) {
+	testDatabase := r.MGDB.Database("test")
+	videoCollection := testDatabase.Collection("video")
+	videoResult, err := videoCollection.InsertOne(ctx, bson.D{
+		{"title", input.Title},
+		{"description", input.Description},
+		{"thumbnail", input.Thumbnail},
+		{"link", input.Link},
+		{"secondLink", secondLink},
+		{"location", input.Location},
+		{"privacy", input.Privacy},
+		{"category", input.Category},
+		{"label", input.Label},
+		{"like", 0},
+		{"dislike", 0},
+		{"view", 0},
+		{"dateUpload", time.Now().Format("2006-01-02 15:04:05")},
+		{"user", bson.D{
+			{"id", "1"},
+			{"profilePic", "https://firebasestorage.googleapis.com/v0/b/fir-data-4e3dd.appspot.com/o/profilePic%2F1598690182549_350x230-img-37159-black-myth-wu-kong.jpg?alt=media&token=f6b3e16f-32f7-49e5-bd9d-2462be615013"},
+			{"username", "test username"},
+		}},
+	})
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(videoResult.InsertedID)
+	return nil, errors.New("insert success")
 }
 
 func (r *queryResolver) Videos(ctx context.Context) ([]*models.Video, error) {
@@ -454,6 +486,35 @@ func (r *queryResolver) GetVideoBySubscription(ctx context.Context, ids []string
 	return videos, nil
 }
 
+func (r *queryResolver) SelectVideoFromMgdb(ctx context.Context) (*models.VideoMgdb, error) {
+	testDatabase := r.MGDB.Database("test")
+	videoCollection := testDatabase.Collection("video")
+	//cursor, err := videoCollection.Find(ctx, bson.M{})
+	//if err != nil{
+	//	log.Fatal(err)
+	//}
+	//defer cursor.Close()
+	//for cursor.Next(ctx){
+	//	var video bson.M
+	//	if err = cursor.Decode(&video); err != nil{
+	//		log.Fatal(err)
+	//	}
+	//}
+	var video models.VideoMgdb
+	if err := videoCollection.FindOne(ctx, bson.M{
+		"title": "Black Myth: Wu Kong",
+	}).Decode(&video); err != nil {
+		log.Fatal(err)
+	}
+	//filterCursor, err := videoCollection.Find(ctx, bson.M{
+	//	"title": "test title",
+	//})
+	//if err != nil{
+	//	log.Fatal(err)
+	//}
+	return &video, nil
+}
+
 func (r *videoResolver) User(ctx context.Context, obj *models.Video) (*models.User, error) {
 	//var user models.User
 	//err := r.DB.Model(&user).Where("id=?", obj.UserID).Select()
@@ -496,13 +557,3 @@ func (r *Resolver) Video() generated.VideoResolver { return &videoResolver{r} }
 
 type likeDetailResolver struct{ *Resolver }
 type videoResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//    it when you're done.
-//  - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *videoResolver) Premium(ctx context.Context, obj *models.Video) (bool, error) {
-	panic(fmt.Errorf("not implemented"))
-}

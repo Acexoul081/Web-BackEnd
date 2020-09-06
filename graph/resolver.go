@@ -4,6 +4,7 @@ package graph
 import (
 	"github.com/go-pg/pg/v10"
 	"github.com/go-redis/redis/v8"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // This file will not be regenerated automatically.
@@ -13,4 +14,5 @@ import (
 type Resolver struct{
 	DB *pg.DB
 	RDB *redis.Client
+	MGDB *mongo.Client
 }

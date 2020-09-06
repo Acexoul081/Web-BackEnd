@@ -17,6 +17,21 @@ type Video{
     premium: Boolean!
 }
 
+type VideoMGDB{
+    id:ID!
+    link: String!
+    secondLink:String!
+    title: String!
+    description: String!
+    thumbnail: String!
+    category: Int!
+    label: Boolean!
+    privacy: Boolean!
+    location: String!
+    view: Int!
+    user:User!
+}
+
 type LikeDetail{
     video: Video!
     user:User!
@@ -49,6 +64,7 @@ extend type Mutation{
     updateVideoLike(id:ID!):LikeDetail!
     updateVideoDislike(id:ID!):LikeDetail!
     deleteVideo(id: ID!):Boolean!
+    insertVideoToMGDB(input:newVideo, secondLink: String!): Video!
 }
 
 extend type Query{
@@ -65,4 +81,5 @@ extend type Query{
     getVideosByTime(time:String!, keyword:String!):[Video!]!
     getSafeVideo:[Video!]!
     getVideoBySubscription(ids: [ID!]!, limit: Int): [Video!]!
+    selectVideoFromMGDB:VideoMGDB!
 }

@@ -139,6 +139,7 @@ type ComplexityRoot struct {
 		DeleteUser             func(childComplexity int, id string) int
 		DeleteVideo            func(childComplexity int, id string) int
 		InsertAbout            func(childComplexity int, description string) int
+		InsertVideoToMgdb      func(childComplexity int, input *models.NewVideo, secondLink string) int
 		Login                  func(childComplexity int, input models.LoginInput) int
 		SwapPlaylistDetail     func(childComplexity int, newID string, tempID string) int
 		UpdateAbout            func(childComplexity int, description string) int
@@ -244,6 +245,7 @@ type ComplexityRoot struct {
 		PlaylistDetails         func(childComplexity int) int
 		Playlists               func(childComplexity int) int
 		Replies                 func(childComplexity int) int
+		SelectVideoFromMgdb     func(childComplexity int) int
 		Subscriptions           func(childComplexity int) int
 		Users                   func(childComplexity int) int
 		Videos                  func(childComplexity int) int
@@ -295,6 +297,21 @@ type ComplexityRoot struct {
 		Location    func(childComplexity int) int
 		Premium     func(childComplexity int) int
 		Privacy     func(childComplexity int) int
+		Thumbnail   func(childComplexity int) int
+		Title       func(childComplexity int) int
+		User        func(childComplexity int) int
+		View        func(childComplexity int) int
+	}
+
+	VideoMgdb struct {
+		Category    func(childComplexity int) int
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Label       func(childComplexity int) int
+		Link        func(childComplexity int) int
+		Location    func(childComplexity int) int
+		Privacy     func(childComplexity int) int
+		SecondLink  func(childComplexity int) int
 		Thumbnail   func(childComplexity int) int
 		Title       func(childComplexity int) int
 		User        func(childComplexity int) int
@@ -371,6 +388,7 @@ type MutationResolver interface {
 	UpdateVideoLike(ctx context.Context, id string) (*models.LikeDetail, error)
 	UpdateVideoDislike(ctx context.Context, id string) (*models.LikeDetail, error)
 	DeleteVideo(ctx context.Context, id string) (bool, error)
+	InsertVideoToMgdb(ctx context.Context, input *models.NewVideo, secondLink string) (*models.Video, error)
 }
 type PlaylistResolver interface {
 	Owner(ctx context.Context, obj *models.Playlist) (*models.User, error)
@@ -435,6 +453,7 @@ type QueryResolver interface {
 	GetVideosByTime(ctx context.Context, time string, keyword string) ([]*models.Video, error)
 	GetSafeVideo(ctx context.Context) ([]*models.Video, error)
 	GetVideoBySubscription(ctx context.Context, ids []string, limit *int) ([]*models.Video, error)
+	SelectVideoFromMgdb(ctx context.Context) (*models.VideoMgdb, error)
 }
 type ReplyResolver interface {
 	User(ctx context.Context, obj *models.Reply) (*models.User, error)
@@ -970,6 +989,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.InsertAbout(childComplexity, args["description"].(string)), true
+
+	case "Mutation.insertVideoToMGDB":
+		if e.complexity.Mutation.InsertVideoToMgdb == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_insertVideoToMGDB_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.InsertVideoToMgdb(childComplexity, args["input"].(*models.NewVideo), args["secondLink"].(string)), true
 
 	case "Mutation.login":
 		if e.complexity.Mutation.Login == nil {
@@ -1794,6 +1825,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Replies(childComplexity), true
 
+	case "Query.selectVideoFromMGDB":
+		if e.complexity.Query.SelectVideoFromMgdb == nil {
+			break
+		}
+
+		return e.complexity.Query.SelectVideoFromMgdb(childComplexity), true
+
 	case "Query.subscriptions":
 		if e.complexity.Query.Subscriptions == nil {
 			break
@@ -2094,6 +2132,90 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Video.View(childComplexity), true
+
+	case "VideoMGDB.category":
+		if e.complexity.VideoMgdb.Category == nil {
+			break
+		}
+
+		return e.complexity.VideoMgdb.Category(childComplexity), true
+
+	case "VideoMGDB.description":
+		if e.complexity.VideoMgdb.Description == nil {
+			break
+		}
+
+		return e.complexity.VideoMgdb.Description(childComplexity), true
+
+	case "VideoMGDB.id":
+		if e.complexity.VideoMgdb.ID == nil {
+			break
+		}
+
+		return e.complexity.VideoMgdb.ID(childComplexity), true
+
+	case "VideoMGDB.label":
+		if e.complexity.VideoMgdb.Label == nil {
+			break
+		}
+
+		return e.complexity.VideoMgdb.Label(childComplexity), true
+
+	case "VideoMGDB.link":
+		if e.complexity.VideoMgdb.Link == nil {
+			break
+		}
+
+		return e.complexity.VideoMgdb.Link(childComplexity), true
+
+	case "VideoMGDB.location":
+		if e.complexity.VideoMgdb.Location == nil {
+			break
+		}
+
+		return e.complexity.VideoMgdb.Location(childComplexity), true
+
+	case "VideoMGDB.privacy":
+		if e.complexity.VideoMgdb.Privacy == nil {
+			break
+		}
+
+		return e.complexity.VideoMgdb.Privacy(childComplexity), true
+
+	case "VideoMGDB.secondLink":
+		if e.complexity.VideoMgdb.SecondLink == nil {
+			break
+		}
+
+		return e.complexity.VideoMgdb.SecondLink(childComplexity), true
+
+	case "VideoMGDB.thumbnail":
+		if e.complexity.VideoMgdb.Thumbnail == nil {
+			break
+		}
+
+		return e.complexity.VideoMgdb.Thumbnail(childComplexity), true
+
+	case "VideoMGDB.title":
+		if e.complexity.VideoMgdb.Title == nil {
+			break
+		}
+
+		return e.complexity.VideoMgdb.Title(childComplexity), true
+
+	case "VideoMGDB.user":
+		if e.complexity.VideoMgdb.User == nil {
+			break
+		}
+
+		return e.complexity.VideoMgdb.User(childComplexity), true
+
+	case "VideoMGDB.view":
+		if e.complexity.VideoMgdb.View == nil {
+			break
+		}
+
+		return e.complexity.VideoMgdb.View(childComplexity), true
 
 	}
 	return 0, false
@@ -2484,6 +2606,21 @@ extend type Mutation{
     premium: Boolean!
 }
 
+type VideoMGDB{
+    id:ID!
+    link: String!
+    secondLink:String!
+    title: String!
+    description: String!
+    thumbnail: String!
+    category: Int!
+    label: Boolean!
+    privacy: Boolean!
+    location: String!
+    view: Int!
+    user:User!
+}
+
 type LikeDetail{
     video: Video!
     user:User!
@@ -2516,6 +2653,7 @@ extend type Mutation{
     updateVideoLike(id:ID!):LikeDetail!
     updateVideoDislike(id:ID!):LikeDetail!
     deleteVideo(id: ID!):Boolean!
+    insertVideoToMGDB(input:newVideo, secondLink: String!): Video!
 }
 
 extend type Query{
@@ -2532,6 +2670,7 @@ extend type Query{
     getVideosByTime(time:String!, keyword:String!):[Video!]!
     getSafeVideo:[Video!]!
     getVideoBySubscription(ids: [ID!]!, limit: Int): [Video!]!
+    selectVideoFromMGDB:VideoMGDB!
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -2895,6 +3034,28 @@ func (ec *executionContext) field_Mutation_insertAbout_args(ctx context.Context,
 		}
 	}
 	args["description"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_insertVideoToMGDB_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *models.NewVideo
+	if tmp, ok := rawArgs["input"]; ok {
+		arg0, err = ec.unmarshalOnewVideo2ᚖBackEndᚋmodelsᚐNewVideo(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["secondLink"]; ok {
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["secondLink"] = arg1
 	return args, nil
 }
 
@@ -6605,6 +6766,47 @@ func (ec *executionContext) _Mutation_deleteVideo(ctx context.Context, field gra
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Mutation_insertVideoToMGDB(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_insertVideoToMGDB_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().InsertVideoToMgdb(rctx, args["input"].(*models.NewVideo), args["secondLink"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*models.Video)
+	fc.Result = res
+	return ec.marshalNVideo2ᚖBackEndᚋmodelsᚐVideo(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Notification_posts(ctx context.Context, field graphql.CollectedField, obj *models.Notification) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -8990,6 +9192,40 @@ func (ec *executionContext) _Query_getVideoBySubscription(ctx context.Context, f
 	return ec.marshalNVideo2ᚕᚖBackEndᚋmodelsᚐVideoᚄ(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_selectVideoFromMGDB(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().SelectVideoFromMgdb(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*models.VideoMgdb)
+	fc.Result = res
+	return ec.marshalNVideoMGDB2ᚖBackEndᚋmodelsᚐVideoMgdb(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -10414,6 +10650,414 @@ func (ec *executionContext) _Video_premium(ctx context.Context, field graphql.Co
 	res := resTmp.(bool)
 	fc.Result = res
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _VideoMGDB_id(ctx context.Context, field graphql.CollectedField, obj *models.VideoMgdb) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "VideoMGDB",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _VideoMGDB_link(ctx context.Context, field graphql.CollectedField, obj *models.VideoMgdb) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "VideoMGDB",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Link, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _VideoMGDB_secondLink(ctx context.Context, field graphql.CollectedField, obj *models.VideoMgdb) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "VideoMGDB",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SecondLink, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _VideoMGDB_title(ctx context.Context, field graphql.CollectedField, obj *models.VideoMgdb) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "VideoMGDB",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _VideoMGDB_description(ctx context.Context, field graphql.CollectedField, obj *models.VideoMgdb) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "VideoMGDB",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _VideoMGDB_thumbnail(ctx context.Context, field graphql.CollectedField, obj *models.VideoMgdb) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "VideoMGDB",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Thumbnail, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _VideoMGDB_category(ctx context.Context, field graphql.CollectedField, obj *models.VideoMgdb) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "VideoMGDB",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Category, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _VideoMGDB_label(ctx context.Context, field graphql.CollectedField, obj *models.VideoMgdb) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "VideoMGDB",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Label, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _VideoMGDB_privacy(ctx context.Context, field graphql.CollectedField, obj *models.VideoMgdb) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "VideoMGDB",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Privacy, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _VideoMGDB_location(ctx context.Context, field graphql.CollectedField, obj *models.VideoMgdb) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "VideoMGDB",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Location, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _VideoMGDB_view(ctx context.Context, field graphql.CollectedField, obj *models.VideoMgdb) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "VideoMGDB",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.View, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _VideoMGDB_user(ctx context.Context, field graphql.CollectedField, obj *models.VideoMgdb) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "VideoMGDB",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.User, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*models.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖBackEndᚋmodelsᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -12613,6 +13257,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "insertVideoToMGDB":
+			out.Values[i] = ec._Mutation_insertVideoToMGDB(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -13546,6 +14195,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "selectVideoFromMGDB":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_selectVideoFromMGDB(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "__type":
 			out.Values[i] = ec._Query___type(ctx, field)
 		case "__schema":
@@ -13942,6 +14605,88 @@ func (ec *executionContext) _Video(ctx context.Context, sel ast.SelectionSet, ob
 			out.Values[i] = ec._Video_premium(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var videoMGDBImplementors = []string{"VideoMGDB"}
+
+func (ec *executionContext) _VideoMGDB(ctx context.Context, sel ast.SelectionSet, obj *models.VideoMgdb) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, videoMGDBImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("VideoMGDB")
+		case "id":
+			out.Values[i] = ec._VideoMGDB_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "link":
+			out.Values[i] = ec._VideoMGDB_link(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "secondLink":
+			out.Values[i] = ec._VideoMGDB_secondLink(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "title":
+			out.Values[i] = ec._VideoMGDB_title(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "description":
+			out.Values[i] = ec._VideoMGDB_description(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "thumbnail":
+			out.Values[i] = ec._VideoMGDB_thumbnail(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "category":
+			out.Values[i] = ec._VideoMGDB_category(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "label":
+			out.Values[i] = ec._VideoMGDB_label(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "privacy":
+			out.Values[i] = ec._VideoMGDB_privacy(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "location":
+			out.Values[i] = ec._VideoMGDB_location(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "view":
+			out.Values[i] = ec._VideoMGDB_view(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "user":
+			out.Values[i] = ec._VideoMGDB_user(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -15154,6 +15899,20 @@ func (ec *executionContext) marshalNVideo2ᚖBackEndᚋmodelsᚐVideo(ctx contex
 		return graphql.Null
 	}
 	return ec._Video(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNVideoMGDB2BackEndᚋmodelsᚐVideoMgdb(ctx context.Context, sel ast.SelectionSet, v models.VideoMgdb) graphql.Marshaler {
+	return ec._VideoMGDB(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNVideoMGDB2ᚖBackEndᚋmodelsᚐVideoMgdb(ctx context.Context, sel ast.SelectionSet, v *models.VideoMgdb) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._VideoMGDB(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

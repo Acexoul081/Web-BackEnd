@@ -12,6 +12,6 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rs/cors v1.6.0
 	github.com/vektah/gqlparser/v2 v2.0.1
-	go.mongodb.org/mongo-driver v1.4.0 // indirect
+	go.mongodb.org/mongo-driver v1.4.0
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 )
