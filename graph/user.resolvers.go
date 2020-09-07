@@ -185,20 +185,23 @@ func (r *queryResolver) GetUserSearch(ctx context.Context, keyword string) ([]*m
 func (r *queryResolver) GetNotification(ctx context.Context, ids []string) (*models.Notification, error) {
 	var notification models.Notification
 
-	var videos []*models.Video
-	err := r.DB.Model(&videos).Where("user_id in (?)", pg.In(ids)).Order("date_upload DESC").Limit(5).Select()
-	if err != nil {
-		return nil, errors.New("failed get video for notification")
-	}
-	notification.Videos = videos
+	if len(ids)>0{
+		var videos []*models.Video
+		err := r.DB.Model(&videos).Where("user_id in (?)", pg.In(ids)).Order("date_upload DESC").Limit(5).Select()
+		if err != nil {
+			return nil, errors.New("failed get video for notification")
+		}
+		notification.Videos = videos
 
-	var posts []*models.Post
-	err = r.DB.Model(&posts).Where("channel_id in (?)", pg.In(ids)).Order("post_date DESC").Limit(5).Select()
-	if err != nil {
-		return nil, errors.New("failed get post for notification")
-	}
-	notification.Posts = posts
+		var posts []*models.Post
+		err = r.DB.Model(&posts).Where("channel_id in (?)", pg.In(ids)).Order("post_date DESC").Limit(5).Select()
+		if err != nil {
+			return nil, errors.New("failed get post for notification")
+		}
+		notification.Posts = posts
 
+		return &notification, nil
+	}
 	return &notification, nil
 }
 
