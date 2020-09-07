@@ -276,6 +276,7 @@ type ComplexityRoot struct {
 		Location     func(childComplexity int) int
 		Membership   func(childComplexity int) int
 		Password     func(childComplexity int) int
+		PlaylistSub  func(childComplexity int) int
 		Playlists    func(childComplexity int) int
 		ProfilePic   func(childComplexity int) int
 		Subscriber   func(childComplexity int) int
@@ -470,6 +471,7 @@ type UserResolver interface {
 	Subscription(ctx context.Context, obj *models.User) ([]*models.Abonemen, error)
 	Subscriber(ctx context.Context, obj *models.User) ([]*models.Abonemen, error)
 	Playlists(ctx context.Context, obj *models.User) ([]*models.Playlist, error)
+	PlaylistSub(ctx context.Context, obj *models.User) ([]*models.PlaylistSub, error)
 }
 type VideoResolver interface {
 	User(ctx context.Context, obj *models.Video) (*models.User, error)
@@ -1979,6 +1981,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Password(childComplexity), true
 
+	case "User.playlistSub":
+		if e.complexity.User.PlaylistSub == nil {
+			break
+		}
+
+		return e.complexity.User.PlaylistSub(childComplexity), true
+
 	case "User.playlists":
 		if e.complexity.User.Playlists == nil {
 			break
@@ -2540,6 +2549,7 @@ type User{
     subscription: [Abonemen!]!
     subscriber: [Abonemen!]!
     playlists:[Playlist!]!
+    playlistSub: [PlaylistSub!]!
     location: String!
     description: String!
     joinDate: String!
@@ -9938,6 +9948,40 @@ func (ec *executionContext) _User_playlists(ctx context.Context, field graphql.C
 	return ec.marshalNPlaylist2ᚕᚖBackEndᚋmodelsᚐPlaylistᚄ(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _User_playlistSub(ctx context.Context, field graphql.CollectedField, obj *models.User) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "User",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.User().PlaylistSub(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*models.PlaylistSub)
+	fc.Result = res
+	return ec.marshalNPlaylistSub2ᚕᚖBackEndᚋmodelsᚐPlaylistSubᚄ(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _User_location(ctx context.Context, field graphql.CollectedField, obj *models.User) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -14447,6 +14491,20 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 					}
 				}()
 				res = ec._User_playlists(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "playlistSub":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_playlistSub(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

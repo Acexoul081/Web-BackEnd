@@ -306,10 +306,10 @@ func (r *queryResolver) GetPlaylistByOwnerID(ctx context.Context, id string, lim
 	var playlists []*models.Playlist
 
 	query := r.DB.Model(&playlists)
-	if currentUser!= nil && currentUser.ID == id{
+	if currentUser != nil && currentUser.ID == id {
 		query.Where("owner_id = ?", id).Order("id")
-	}else{
-		query.Where("owner_id = ? and privacy is null" , id).Order("id")
+	} else {
+		query.Where("owner_id = ? and privacy is null", id).Order("id")
 	}
 	if limit != nil {
 		query.Limit(*limit)

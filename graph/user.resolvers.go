@@ -253,6 +253,15 @@ func (r *userResolver) Playlists(ctx context.Context, obj *models.User) ([]*mode
 	return playlist, nil
 }
 
+func (r *userResolver) PlaylistSub(ctx context.Context, obj *models.User) ([]*models.PlaylistSub, error) {
+	var subs []*models.PlaylistSub
+	err := r.DB.Model(&subs).Where("user_id = ?", obj.ID).Select()
+	if err != nil {
+		return nil, errors.New("error get playlist sub from user  id")
+	}
+	return subs, nil
+}
+
 // User returns generated.UserResolver implementation.
 func (r *Resolver) User() generated.UserResolver { return &userResolver{r} }
 

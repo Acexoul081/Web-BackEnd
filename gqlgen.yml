@@ -68,6 +68,8 @@ models:
         resolver: true
       membership:
         resolver: true
+      playlistSub:
+        resolver: true
   Video:
     model: BackEnd/models.Video
     fields:

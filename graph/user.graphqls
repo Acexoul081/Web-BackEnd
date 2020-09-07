@@ -18,6 +18,7 @@ type User{
     subscription: [Abonemen!]!
     subscriber: [Abonemen!]!
     playlists:[Playlist!]!
+    playlistSub: [PlaylistSub!]!
     location: String!
     description: String!
     joinDate: String!
